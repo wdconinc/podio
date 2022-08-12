@@ -150,11 +150,7 @@ podio::CollectionBuffers {{ collection_type }}::getBuffers() {
 
 {{ iterator_definitions(class) }}
 
-{{ iterator_definitions(class, prefix='Mutable' ) }}
-
 {{ reverse_iterator_definitions(class) }}
-
-{{ reverse_iterator_definitions(class, prefix='Mutable' ) }}
 
 {{ macros.ostream_operator(class, Members, OneToOneRelations, OneToManyRelations, VectorMembers, use_get_syntax, ostream_collection_settings) }}
 
