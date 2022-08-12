@@ -62,9 +62,9 @@ TEST_CASE("Assignment-operator ref count", "[basics][memory-management]") {
   // Make sure that the assignment operator handles the reference count
   // correctly. (Will trigger in an ASan build if it is not the case)
   // See https://github.com/AIDASoft/podio/issues/200
-  std::map<int, ExampleHit> hitMap;
+  std::map<int, MutableExampleHit> hitMap;
   for (int i = 0; i < 10; ++i) {
-    auto hit = ExampleHit(0x42ULL, i, i, i, i);
+    auto hit = MutableExampleHit(0x42ULL, i, i, i, i);
     hitMap[i] = hit;
   }
 
@@ -163,12 +163,12 @@ TEST_CASE("Looping", "[basics]") {
   auto& coll = store.create<ExampleHitCollection>("name");
   auto hit1 = coll.create(0xbadULL, 0., 0., 0., 0.);
   auto hit2 = coll.create(0xcaffeeULL, 1., 1., 1., 1.);
-  for (auto&& i : coll) {
-    i.energy(42); // make sure that we can indeed change the energy here for
-                  // non-const collections
-  }
-  REQUIRE(hit1.energy() == 42);
-  REQUIRE(hit2.energy() == 42);
+  //for (auto&& i : coll) {
+  //  i.energy(42); // make sure that we can indeed change the energy here for
+  //                // non-const collections
+  //}
+  //REQUIRE(hit1.energy() == 42);
+  //REQUIRE(hit2.energy() == 42);
 
   for (int i = 0, end = coll.size(); i != end; ++i) {
     coll[i].energy(i); // reset it back to the original value
@@ -476,47 +476,56 @@ TEST_CASE("const correct iterators on const collections", "[const-correctness]")
 TEST_CASE("const correct iterators on collections", "[const-correctness]") {
   auto collection = ExampleClusterCollection();
   for (auto cluster : collection) {
-    STATIC_REQUIRE(std::is_same_v<decltype(cluster), MutableExampleCluster>); // collection iterators should return
-                                                                              // mutable objects
-    cluster.energy(42);                                                       // this will necessarily also compile
+    STATIC_REQUIRE(std::is_same_v<decltype(cluster), ExampleCluster>); // collection iterators should return
+                                                                       // non-mutable objects
+    //cluster.energy(42);                                              // this would fail to compile
   }
 
   // check the individual steps again from above, to see where things fail if they fail
   STATIC_REQUIRE(std::is_same_v<decltype(std::declval<ExampleClusterCollection>().end()),
-                                ExampleClusterMutableCollectionIterator>); // non const collection end() should return a
-                                                                           // MutableCollectionIterator
+                                ExampleClusterCollectionIterator>); // non const collection end() should return a
+                                                                    // non-mutable CollectionIterator
 
   STATIC_REQUIRE(std::is_same_v<decltype(std::declval<ExampleClusterCollection>().end()),
-                                ExampleClusterMutableCollectionIterator>); // non const collection end() should return a
-                                                                           // MutableCollectionIterator
+                                ExampleClusterCollectionIterator>); // non const collection end() should return a
+                                                                    // non-mutable CollectionIterator
 
   STATIC_REQUIRE(std::is_same_v<decltype(std::declval<ExampleClusterCollection>().end()),
-                                ExampleClusterMutableCollectionIterator>); // collection end() should return a
-                                                                           // MutableCollectionIterator
+                                ExampleClusterCollectionIterator>); // collection end() should return a
+                                                                    // non-mutable CollectionIterator
 
   STATIC_REQUIRE(std::is_same_v<decltype(*std::declval<ExampleClusterCollection>().begin()),
-                                MutableExampleCluster>); // MutableCollectionIterator should give access to mutable
-                                                         // objects
+                                ExampleCluster>); // CollectionIterator should give access to non-mutable
+                                                  // objects
 
-  STATIC_REQUIRE(std::is_same_v<decltype(std::declval<ExampleClusterMutableCollectionIterator>().operator->()),
-                                MutableExampleCluster*>); // CollectionIterator should only give access to mutable
-                                                          // objects
+  STATIC_REQUIRE(std::is_same_v<decltype(std::declval<ExampleClusterCollectionIterator>().operator->()),
+                                ExampleCluster*>); // CollectionIterator should only give access to non-mutable
+                                                   // objects
 }
 
 TEST_CASE("Iterator dereferencing", "[!shouldfail][iterators]") {
   // a collection to play with
   auto collection = ExampleHitCollection();
+  collection.create();
 
   // NOTE: the following unit tests will fail because even the mutable iterator
   // does not return an lvalue on dereference that writes to the collection: i.e.
-  // for (auto i = collection.begin(); i != collection.end(); i++) {
-  //   *i = MutableExampleHit(0x42ULL, 0., 0., 0., 0.);
-  // }
+  for (auto i = collection.begin(); i != collection.end(); ++i) {
+    std::cout << typeid(decltype(collection)).name() << std::endl;
+    std::cout << typeid(decltype(collection.begin())).name() << std::endl;
+    std::cout << typeid(decltype(i)).name() << std::endl;
+    std::cout << typeid(decltype(*i)).name() << std::endl;
+    i->operator=(MutableExampleHit(0x42ULL, 0., 0., 0., 0.));
+  }
+  REQUIRE(collection.begin()->cellID() == 0x42ULL);
   // This does not write into the collection, but just to a temporary copy.
+}
+
+TEST_CASE("Iterator in std::fill", "[!shouldfail][iterators]") {
+  // a collection to play with
+  auto collection = ExampleHitCollection();
 
   // fill from mutable
-  collection.clear();
-  collection.create();
   auto mutable_hit = MutableExampleHit(0x42ULL, 0., 0., 0., 0.);
   std::fill(collection.begin(), collection.end(), mutable_hit);
   REQUIRE(collection.begin()->cellID() == 0x42ULL);
@@ -566,19 +575,21 @@ TEST_CASE("Iterator concepts", "[iterator-concepts][iterators]") {
   collection.create(0x42ULL, 0., 0., 0., 0.);
   // forward loop with post-increment
   for (auto c = collection.begin(); c != collection.end(); c++) {
-    STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHitMutableCollectionIterator>);
+    STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHitCollectionIterator>);
+    STATIC_REQUIRE(std::is_same_v<decltype(*c), ExampleHit>);
     cellID = c->cellID();
   }
   REQUIRE(cellID == 0x42ULL);
   // reverse const loop with pre-increment
   for (auto c = collection.crbegin(); c != collection.crend(); ++c) {
     STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHitCollectionReverseIterator>);
+    STATIC_REQUIRE(std::is_same_v<decltype(*c), ExampleHit>);
     cellID = c->cellID();
   }
   REQUIRE(cellID == 0);
   // std::for_each loop with reference capture
   std::for_each(collection.begin(), collection.end(), [&cellID](const auto& c) {
-    STATIC_REQUIRE(std::is_same_v<decltype(c), const MutableExampleHit&>);
+    STATIC_REQUIRE(std::is_same_v<decltype(c), const ExampleHit&>);
     cellID = c.cellID();
   });
   REQUIRE(cellID == 0x42ULL);
@@ -595,13 +606,13 @@ TEST_CASE("Iterator concepts", "[iterator-concepts][iterators]") {
   REQUIRE(found_const->cellID() == 0x42ULL);
   // forward find with mutable iterators
   auto found = std::find_if(collection.begin(), collection.end(), [](const auto& h) { return h.cellID() == 0x42ULL; });
-  STATIC_REQUIRE(std::is_same_v<decltype(found), ExampleHitMutableCollectionIterator>);
+  STATIC_REQUIRE(std::is_same_v<decltype(found), ExampleHitCollectionIterator>);
   REQUIRE(found != collection.end());
   REQUIRE(found->cellID() == 0x42ULL);
   // reverse find with mutable iterators
   auto found_reverse =
       std::find_if(collection.rbegin(), collection.rend(), [](const auto& h) { return h.cellID() == 0x42ULL; });
-  STATIC_REQUIRE(std::is_same_v<decltype(found_reverse), ExampleHitMutableCollectionReverseIterator>);
+  STATIC_REQUIRE(std::is_same_v<decltype(found_reverse), ExampleHitCollectionReverseIterator>);
   REQUIRE(found_reverse != collection.rend());
   REQUIRE(found_reverse->cellID() == 0x42ULL);
   // forward find that fails
@@ -634,28 +645,28 @@ TEST_CASE("Ranges (C++20)", "[ranges][iterators]") {
   // pipe syntax
   int count_pipe_syntax = 0;
   for (auto c : collection | std::views::filter(is_non_zero)) {
-    STATIC_REQUIRE(std::is_same_v<decltype(c), MutableExampleHit>);
+    STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHit>);
     ++count_pipe_syntax;
   }
   REQUIRE(count_pipe_syntax == 1);
   // composing syntax
   auto count_composing = 0;
   for (auto c : std::views::filter(collection, is_non_zero)) {
-    STATIC_REQUIRE(std::is_same_v<decltype(c), MutableExampleHit>);
+    STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHit>);
     ++count_composing;
   }
   REQUIRE(count_composing == 1);
   // take_while
   auto count_take_while = 0;
   for (auto c : collection | std::views::take_while(is_non_zero)) {
-    STATIC_REQUIRE(std::is_same_v<decltype(c), MutableExampleHit>);
+    STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHit>);
     ++count_take_while;
   }
   REQUIRE(count_take_while == 0);
   // ref_view
   const std::ranges::ref_view collection_ref_view{collection};
   for (auto c : collection_ref_view) {
-    STATIC_REQUIRE(std::is_same_v<decltype(c), MutableExampleHit>);
+    STATIC_REQUIRE(std::is_same_v<decltype(c), ExampleHit>);
   }
   // for_each with pipe syntax
   float energy = 0;
@@ -672,8 +683,8 @@ TEST_CASE("Ranges (C++20)", "[ranges][iterators]") {
   auto cluster1 = collection2.create();
   REQUIRE(collection1.begin().cellID() == 0);
   for (auto c: std::views::zip(collection1, collection2) {
-    STATIC_REQUIRE(std::is_same_v<decltype(std::get<0>(c)), MutableExampleHit>);
-    STATIC_REQUIRE(std::is_same_v<decltype(std::get<1>(c)), MutableExampleCluster>);
+    STATIC_REQUIRE(std::is_same_v<decltype(std::get<0>(c)), ExampleHit>);
+    STATIC_REQUIRE(std::is_same_v<decltype(std::get<1>(c)), ExampleCluster>);
     // set all cellIDs in hit collection to 1
     std::get<0>(c).cellID(1);
   }
