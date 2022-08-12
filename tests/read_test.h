@@ -128,44 +128,44 @@ void processEvent(podio::EventStore& store, int eventNum, podio::version::Versio
   }
 
   // particle 0 has particles 2,3,4 and 5 as daughters:
-  auto p = mcps[0];
+  auto p0 = mcps[0];
 
-  auto d0 = p.daughters(0);
-  auto d1 = p.daughters(1);
-  auto d2 = p.daughters(2);
-  auto d3 = p.daughters(3);
+  auto d0_0 = p0.daughters(0);
+  auto d0_1 = p0.daughters(1);
+  auto d0_2 = p0.daughters(2);
+  auto d0_3 = p0.daughters(3);
 
-  if (!(d0 == mcps[2])) {
+  if (!(d0_0 == mcps[2])) {
     throw std::runtime_error(" error: 1. daughter of particle 0 is not particle 2 ");
   }
-  if (!(d1 == mcps[3])) {
+  if (!(d0_1 == mcps[3])) {
     throw std::runtime_error(" error: 2. daughter of particle 0 is not particle 3 ");
   }
-  if (!(d2 == mcps[4])) {
+  if (!(d0_2 == mcps[4])) {
     throw std::runtime_error(" error: 3. daughter of particle 0 is not particle 4 ");
   }
-  if (!(d3 == mcps[5])) {
+  if (!(d0_3 == mcps[5])) {
     throw std::runtime_error(" error: 4. daughter of particle 0 is not particle 5 ");
   }
 
   // particle 3 has particles 6,7,8 and 9 as daughters:
-  p = mcps[3];
+  auto p3 = mcps[3];
 
-  d0 = p.daughters(0);
-  d1 = p.daughters(1);
-  d2 = p.daughters(2);
-  d3 = p.daughters(3);
+  auto d3_0 = p3.daughters(0);
+  auto d3_1 = p3.daughters(1);
+  auto d3_2 = p3.daughters(2);
+  auto d3_3 = p3.daughters(3);
 
-  if (!(d0 == mcps[6])) {
+  if (!(d3_0 == mcps[6])) {
     throw std::runtime_error(" error: 1. daughter of particle 3 is not particle 6 ");
   }
-  if (!(d1 == mcps[7])) {
+  if (!(d3_1 == mcps[7])) {
     throw std::runtime_error(" error: 2. daughter of particle 3 is not particle 7 ");
   }
-  if (!(d2 == mcps[8])) {
+  if (!(d3_2 == mcps[8])) {
     throw std::runtime_error(" error: 3. daughter of particle 3 is not particle 8 ");
   }
-  if (!(d3 == mcps[9])) {
+  if (!(d3_3 == mcps[9])) {
     throw std::runtime_error(" error: 4. daughter of particle 3 is not particle 9 ");
   }
 
