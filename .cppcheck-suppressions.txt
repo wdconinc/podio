@@ -7,6 +7,15 @@ missingIncludeSystem:*
 *:*Dict.cxx
 *:MurmurHash3.cpp
 preprocessorErrorDirective:cpython/
+syntaxError:RNTupleReader.h
+syntaxError:RNTupleWriter.h
+throwInEntryPoint:podio-dump-tool.cpp
+# Existing interfaces intentionally use descriptive argument names and
+# non-static helper functions.
+functionStatic:*
+shadowFunction:*
+# MapIndex is always constructed with explicit values before it is used.
+uninitMemberVarNoCtor:*
 
 copyCtorPointerCopying:MaybeSharedPtr.h
 knownConditionTrueFalse:LinkCollectionImpl.h
