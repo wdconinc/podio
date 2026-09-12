@@ -20,13 +20,17 @@
 // podio specific includes
 #include "podio/Frame.h"
 #include "podio/GenericParameters.h"
+#if PODIO_ENABLE_ROOT
 #include "podio/ROOTLegacyReader.h"
 #include "podio/ROOTReader.h"
 #include "podio/ROOTWriter.h"
+#endif
 #include "podio/podioVersion.h"
 #include "podio/utilities/TypeHelpers.h"
 
+#if PODIO_ENABLE_ROOT
 #include "../../src/rootUtils.h"
+#endif
 
 #ifndef PODIO_ENABLE_SIO
   #define PODIO_ENABLE_SIO 0
@@ -1360,6 +1364,7 @@ TEST_CASE("GenericParameters constructors", "[generic-parameters]") {
 }
 
 TEST_CASE("Missing files", "[basics]") {
+#if PODIO_ENABLE_ROOT
   SECTION("ROOT readers") {
     auto root_legacy_reader = podio::ROOTLegacyReader();
     REQUIRE_THROWS_AS(root_legacy_reader.openFile("NonExistentFile.root"), std::runtime_error);
@@ -1367,6 +1372,7 @@ TEST_CASE("Missing files", "[basics]") {
     auto root_frame_reader = podio::ROOTReader();
     REQUIRE_THROWS_AS(root_frame_reader.openFile("NonExistentFile.root"), std::runtime_error);
   }
+#endif
 
 #if PODIO_ENABLE_SIO
   SECTION("SIO readers") {
@@ -1616,6 +1622,7 @@ void runRelationAfterCloneCheck(const std::string& filename = "unittest_relation
   REQUIRE(nEmptyCluster.Hits()[3].cellID() == 423);
 }
 
+#if PODIO_ENABLE_ROOT
 TEST_CASE("Relations after cloning with TTrees", "[ASAN-FAIL][UBSAN-FAIL][relations][basics]") {
   runRelationAfterCloneCheck<podio::ROOTReader, podio::ROOTWriter>("unittests_relations_after_cloning.root");
 }
@@ -1628,7 +1635,9 @@ TEST_CASE("ROOTWriter consistent frame contents", "[ASAN-FAIL][UBSAN-FAIL][THREA
 TEST_CASE("ROOTWriter check consistency", "[ASAN-FAIL][UBSAN-FAIL][basics][root]") {
   runCheckConsistencyTest<podio::ROOTWriter>("unittests_frame_check_consistency.root");
 }
+#endif
 
+#if PODIO_ENABLE_ROOT
 TEST_CASE("checkConsistentColls detects missing collection", "[basics][root]") {
   std::vector<podio::root_utils::CollectionWriteInfo> collInfo{};
   collInfo.emplace_back(0, "T1", false, 0, "clusters", "storage");
@@ -1641,6 +1650,8 @@ TEST_CASE("checkConsistentColls detects missing collection", "[basics][root]") {
   const std::vector<std::string> candsWithAdditional{"clusters", "hits", "new", "superfluous"};
   REQUIRE_FALSE(::podio::root_utils::checkConsistentColls(collInfo, candsWithAdditional));
 }
+#endif
+
 
 #if PODIO_ENABLE_RNTUPLE
 
