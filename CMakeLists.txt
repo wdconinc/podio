@@ -232,9 +232,12 @@ if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
 
-find_package(fmt 9 REQUIRED)
+option(BUILD_TOOLS "Build tools" ON)
+if(BUILD_TOOLS)
+  find_package(fmt 9 REQUIRED)
+  add_subdirectory(tools)
+endif()
 
-add_subdirectory(tools)
 add_subdirectory(python)
 
 

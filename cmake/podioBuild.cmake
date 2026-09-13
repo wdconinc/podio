@@ -208,7 +208,11 @@ IF((TARGET ROOT::PyROOT OR TARGET ROOT::ROOTTPython) AND DEFINED ROOT_VERSION AN
     endif()
   endif()
 else()
-  find_package(Python3 COMPONENTS Development Interpreter)
+  if(ENABLE_ROOT)
+    find_package(Python3 COMPONENTS Development Interpreter)
+  else()
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  endif()
 endif()
 
 # Setup the python install dir. See the discussion in

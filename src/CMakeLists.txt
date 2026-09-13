@@ -61,8 +61,11 @@ SET(core_sources
   SchemaEvolution.cc
   Glob.cc
   BackendLibraryLoader.cc
-  Pythonizations.cc
   )
+
+if(ENABLE_ROOT)
+  list(APPEND core_sources Pythonizations.cc)
+endif()
 
 SET(core_headers
   ${PROJECT_SOURCE_DIR}/include/podio/CollectionBase.h
@@ -80,8 +83,8 @@ SET(core_headers
 
 PODIO_ADD_LIB_AND_DICT(podio "${core_headers}" "${core_sources}" selection.xml)
 target_compile_options(podio PRIVATE -pthread)
-target_link_libraries(podio PRIVATE Python3::Python)
 if(ENABLE_ROOT)
+  target_link_libraries(podio PRIVATE Python3::Python)
   target_compile_definitions(podio PUBLIC PODIO_ENABLE_ROOT=1)
 else()
   target_compile_definitions(podio PUBLIC PODIO_ENABLE_ROOT=0)

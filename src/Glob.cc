@@ -27,6 +27,16 @@ bool is_glob_pattern(const std::string& pattern) {
 
 #if __has_include(<glob.h>)
 
+#ifndef GLOB_BRACE
+#define GLOB_BRACE 0
+#endif
+#ifndef GLOB_NOMAGIC
+#define GLOB_NOMAGIC 0
+#endif
+#ifndef GLOB_TILDE
+#define GLOB_TILDE 0
+#endif
+
 int glob_err_handler(const char* epath, int eerrno) {
   std::cerr << "Glob expansion error accessing path: " << epath << " (error code: " << eerrno << ")\n";
   return 0;
