@@ -200,7 +200,7 @@ function(PODIO_ADD_DATAMODEL_CORE_LIB lib_name HEADERS SOURCES)
   LIST(FILTER SOURCES EXCLUDE REGEX .*SIOBlock.cc)
   LIST(FILTER SOURCES EXCLUDE REGEX .*ArrowMapper.cc)
 
-  add_library(${lib_name} SHARED ${SOURCES} ${HEADERS})
+  add_library(${lib_name} ${SOURCES} ${HEADERS})
   target_link_libraries(${lib_name} PUBLIC podio::podio)
   target_include_directories(${lib_name} PUBLIC
     $<BUILD_INTERFACE:${ARG_OUTPUT_FOLDER}>
@@ -272,7 +272,7 @@ endif()
     endif()
   endforeach()
 
-  add_library(${dict_name} SHARED)
+  add_library(${dict_name})
   target_link_libraries(${dict_name} PUBLIC
     ${CORE_LIB}
     podio::podio
@@ -323,7 +323,7 @@ endif()
   LIST(FILTER HEADERS INCLUDE REGEX .*SIOBlock.h)
   LIST(FILTER SOURCES INCLUDE REGEX .*SIOBlock.cc)
 
-  add_library(${CORE_LIB}SioBlocks SHARED ${SOURCES} ${HEADERS})
+  add_library(${CORE_LIB}SioBlocks ${SOURCES} ${HEADERS})
   target_link_libraries(${CORE_LIB}SioBlocks PUBLIC ${CORE_LIB} podio::podio podio::podioSioIO SIO::sio)
   target_include_directories(${CORE_LIB}SioBlocks PUBLIC
     $<BUILD_INTERFACE:${ARG_OUTPUT_FOLDER}>
@@ -363,7 +363,7 @@ endif()
   # Only get the ArrowMapper handlers
   list(FILTER SOURCES INCLUDE REGEX .*ArrowMapper.cc)
 
-  add_library(${CORE_LIB}PodioArrow SHARED ${SOURCES})
+  add_library(${CORE_LIB}PodioArrow ${SOURCES})
   target_link_libraries(${CORE_LIB}PodioArrow PUBLIC ${CORE_LIB} podio::podio podio::podioArrow)
   target_include_directories(${CORE_LIB}PodioArrow PUBLIC
     $<BUILD_INTERFACE:${ARG_OUTPUT_FOLDER}>

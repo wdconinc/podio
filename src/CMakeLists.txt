@@ -21,7 +21,7 @@
 # library
 FUNCTION(PODIO_ADD_LIB_AND_DICT libname headers sources selection )
   # shared library
-  add_library(${libname} SHARED ${sources})
+  add_library(${libname} ${sources})
   add_library(podio::${libname} ALIAS ${libname})
   target_include_directories(${libname} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -31,7 +31,7 @@ FUNCTION(PODIO_ADD_LIB_AND_DICT libname headers sources selection )
   if(ENABLE_ROOT)
     # dictionary
     set(dictname ${libname}Dict)
-    add_library(${dictname} SHARED)
+    add_library(${dictname})
     target_include_directories(${dictname} PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
@@ -196,7 +196,7 @@ if(ENABLE_ARROW)
     target_link_libraries(podioArrow PUBLIC ${PODIO_PARQUET_TARGET})
     target_compile_definitions(podioArrow PUBLIC PODIO_ENABLE_PARQUET=1)
   else()
-    add_library(podioArrow SHARED ${arrow_sources})
+    add_library(podioArrow ${arrow_sources})
     add_library(podio::podioArrow ALIAS podioArrow)
     target_include_directories(podioArrow PUBLIC
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -235,7 +235,7 @@ set(io_headers
   ${PROJECT_SOURCE_DIR}/include/podio/Reader.h
   )
 
-add_library(podioIO SHARED ${io_sources})
+add_library(podioIO ${io_sources})
 add_library(podio::podioIO ALIAS podioIO)
 target_include_directories(podioIO PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
