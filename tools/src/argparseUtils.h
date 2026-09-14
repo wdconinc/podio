@@ -15,8 +15,9 @@ auto findFlags(const std::vector<std::string>& argv, Flags... flags) {
 
 inline size_t parseSizeOrExit(std::string_view str) {
   std::size_t number{};
-  const auto [ptr, err] = std::from_chars(str.data(), str.end(), number);
-  if (err != std::errc{} || ptr != str.end()) {
+  const char* endPtr = str.data() + str.size();
+  const auto [ptr, err] = std::from_chars(str.data(), endPtr, number);
+  if (err != std::errc{} || ptr != endPtr) {
     std::cerr << "'" << str << "' cannot be parsed into an integer number" << std::endl;
     std::exit(1);
   }
