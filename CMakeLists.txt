@@ -76,7 +76,7 @@ option(PODIO_USE_CLANG_FORMAT "Use clang-format to format the code" OFF)
 option(ENABLE_JULIA      "Enable Julia support. When enabled, Julia datamodels will be generated, and Julia tests will run." OFF)
 
 
-#--- Declare ROOT dependency ---------------------------------------------------
+#--- Declare dependencies ------------------------------------------------------
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(root_components_needed RIO Tree)
@@ -89,6 +89,7 @@ if(ENABLE_DATASOURCE)
   list(APPEND root_components_needed ROOTDataFrame)
 endif()
 find_package(ROOT ${root_min_version} REQUIRED COMPONENTS ${root_components_needed})
+find_package(Threads REQUIRED)
 
 if(ENABLE_RNTUPLE AND ROOT_VERSION VERSION_LESS 6.34)
   message(WARNING "You are building RNTuple support against a version of ROOT that does not yet guarantee RNTuple backwards compatibility")
