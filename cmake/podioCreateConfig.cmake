@@ -8,7 +8,7 @@ write_basic_package_version_file(${PROJECT_BINARY_DIR}/podioConfigVersion.cmake
                                  COMPATIBILITY SameMajorVersion )
 
 # Build tree config
-export(EXPORT podioTargets NAMESPACE podio:: FILE ${PROJECT_BINARY_DIR}/podioTargets.cmake)
+#export(EXPORT podioTargets NAMESPACE podio:: FILE ${PROJECT_BINARY_DIR}/podioTargets.cmake)
 
 # Install tree config
 configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/podioConfig.cmake.in
