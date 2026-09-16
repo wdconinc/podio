@@ -64,7 +64,6 @@ SET(core_sources
   )
 
 if(ENABLE_ROOT)
-  list(APPEND core_sources Pythonizations.cc)
 endif()
 
 SET(core_headers
@@ -84,7 +83,9 @@ SET(core_headers
 PODIO_ADD_LIB_AND_DICT(podio "${core_headers}" "${core_sources}" selection.xml)
 target_compile_options(podio PRIVATE -pthread)
 if(ENABLE_ROOT)
+  if(TARGET Python3::Python)
   target_link_libraries(podio PRIVATE Python3::Python)
+endif()
   target_compile_definitions(podio PUBLIC PODIO_ENABLE_ROOT=1)
 else()
   target_compile_definitions(podio PUBLIC PODIO_ENABLE_ROOT=0)

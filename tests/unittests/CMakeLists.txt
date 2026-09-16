@@ -41,7 +41,14 @@ else()
 endif()
 
 find_package(Threads REQUIRED)
-add_executable(unittest_podio unittest.cpp frame.cpp buffer_factory.cpp interface_types.cpp std_interoperability.cpp links.cpp test_json_output.cpp)
+add_executable(unittest_podio unittest.cpp frame.cpp buffer_factory.cpp interface_types.cpp std_interoperability.cpp links.cpp)
+
+# Conditionally add JSON test
+if(TARGET nlohmann_json::nlohmann_json)
+  target_sources(unittest_podio PRIVATE test_json_output.cpp)
+  target_link_libraries(unittest_podio PRIVATE nlohmann_json::nlohmann_json)
+endif()
+
 target_link_libraries(unittest_podio PUBLIC TestDataModel ExtensionDataModel InterfaceExtensionDataModel PRIVATE Catch2::Catch2WithMain Threads::Threads)
 if (ENABLE_ROOT)
   target_link_libraries(unittest_podio PRIVATE podio::podioRootIO)
